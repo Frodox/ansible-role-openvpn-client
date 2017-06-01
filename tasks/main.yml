@@ -1,0 +1,18 @@
+- name: install OpenVPN client
+  apt: name=openvpn
+
+- name: put client.conf
+  template: src=client.conf dest="/etc/openvpn/{{ item.name }}.conf"
+  with_items: "{{ openvpn_clients }}"
+
+- name: put ca.crt
+  template: src=ca.crt dest="/etc/openvpn/{{ item.name }}-ca.crt"
+  with_items: "{{ openvpn_clients }}"
+
+- name: put "{{ item.name }}-pass.txt"
+  template: src=pass.txt dest="/etc/openvpn/{{ item.name }}-pass.txt" mode=0600
+  with_items: "{{ openvpn_clients }}"
+
+- name: enable "openvpn@{{ item.name }}" service
+  service: name="openvpn@{{ item.name }}" state=started enabled=yes
+  with_items: "{{ openvpn_clients }}"
